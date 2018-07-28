@@ -57,6 +57,10 @@ module HockeyApp
       self.class.get "/apps/#{app_id}/app_versions", options
     end
 
+    def get_invites options = {}
+      self.class.get "/invites", options
+    end
+
     def post_new_version(
         app_id,
             ipa,
@@ -78,6 +82,27 @@ module HockeyApp
       }
       params.reject!{|_,v|v.nil?}
       self.class.post "/apps/#{app_id}/app_versions/upload", :body => params
+    end
+
+    def post_invite(
+        app_id,
+        email,
+        first_name='',
+        last_name='',
+        message='',
+        role=3,
+        tags=''
+    )
+      params = {
+          :email => email,
+          :first_name => first_name,
+          :last_name => last_name,
+          :message => message,
+          :role => role,
+          :tags => tags
+      }
+      params.reject!{|_,v|v.nil?}
+      self.class.post "/apps/#{app_id}/app_users", :body => params
     end
 
 

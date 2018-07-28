@@ -18,6 +18,11 @@ module HockeyApp
         1 => :markdown
     }
 
+    ROLES_TO_SYM = {
+        1 => :developers,
+        2 => :members,
+        3 => :testers
+    }
 
     NOTIFY_TO_BOOL = {
         0 => false,
@@ -36,7 +41,7 @@ module HockeyApp
     validates :notes_type, :inclusion => { :in =>NOTES_TYPES_TO_SYM.keys }
     validates :notify, :inclusion => { :in => NOTIFY_TO_BOOL.keys }
     validates :status, :inclusion => { :in => STATUS_TO_SYM.keys }
-
+    validates :role, :inclusion => { :in => ROLES_TO_SYM.keys }
 
     def self.from_hash(h, client)
       res = self.new client
@@ -70,6 +75,10 @@ module HockeyApp
       @versions ||= client.get_versions(self)
     end
 
+    def invites
+      @invites ||= client.get_invites(self)
+    end
+
     def last_version
       sorted_version = versions.sort_by { |v| v.version.to_i}
       sorted_version.last
@@ -100,6 +109,18 @@ module HockeyApp
       version.tags = tags
       client.post_new_version version
       @versions = nil
+    end
+
+    def create_invite email, first_name = "", last_name = "", message = "", role = 3, tags = ""
+      invite = Invite.new(self, @client)
+      invite.email = email
+      invite.first_name = first_name
+      invite.last_name = last_name
+      invite.message = message
+      invite.role = role
+      invite.tags = tags
+      resp = client.post_invite invite
+      resp
     end
 
     def remove

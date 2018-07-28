@@ -3,9 +3,9 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "hockeyapp"
-  s.version     = "0.0.17"
-  s.authors     = ["Philippe Van Eerdenbrugghe", "Paul Renson"]
-  s.email       = ["philippe.vaneerdenbrugghe@tapptic.com", "paul.renson.ext@tapptic.com"]
+  s.version     = "0.0.18"
+  s.authors     = ["Philippe Van Eerdenbrugghe", "Paul Renson", "Marlon Santos"]
+  s.email       = ["philippe.vaneerdenbrugghe@tapptic.com", "paul.renson.ext@tapptic.com", "marlon@marlsantos.com"]
   s.homepage    = ""
   s.summary     = %q{Wrapper for the hockeyapp REST API}
   s.description = %q{This simple wrapper enables you to acces the hockeyapp REST API through simple ruby calls. You are rquired to configure a valid token before doing anyhting else}

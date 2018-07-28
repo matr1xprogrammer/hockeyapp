@@ -1,24 +1,22 @@
 module HockeyApp
-  class Version
+  class Invite
     extend  ActiveModel::Naming
     include ActiveModel::Conversion
     include ActiveModel::Validations
     include ActiveModelCompliance
 
-    ATTRIBUTES = [:id, :notes, :shortversion, :version, :mandatory, :timestamp, :appsize,  :title, :download_url]
+    ANDROID = 'Android'
+    IOS = 'iOS'
 
-    POST_PAYLOAD = [:status, :ipa, :dsym, :notes_type, :notify, :tags]
+    ATTRIBUTES = [:title, :status, :company, :owner, :bundle_identifier, :platform,
+        :public_identifier, :role, :release_type]
 
-    NOTES_TYPES_TO_SYM = {
-        0 => :textile,
-        1 => :markdown
-    }
+    POST_PAYLOAD = [:status, :email, :first_name, :last_name, :message, :role, :tags ]
 
-
-    NOTIFY_TO_BOOL = {
-        0 => :none,
-        1 => :all_allowed,
-	      2 => :all
+    ROLES_TO_SYM = {
+        1 => :developers,
+        2 => :members,
+        3 => :testers
     }
 
     STATUS_TO_SYM = {
@@ -30,10 +28,8 @@ module HockeyApp
     attr_accessor *POST_PAYLOAD
     attr_reader :app
 
-    validates :notes_type, :inclusion => { :in =>NOTES_TYPES_TO_SYM.keys }
-    validates :notify, :inclusion => { :in => NOTIFY_TO_BOOL.keys }
+    validates :role, :inclusion => { :in => ROLES_TO_SYM.keys }
     validates :status, :inclusion => { :in => STATUS_TO_SYM.keys }
-
 
     def self.from_hash(h, app, client)
       res = self.new app, client
@@ -49,9 +45,12 @@ module HockeyApp
       default_values!
     end
 
-
     def to_key
-      [@id] if persisted?
+      [public_identifier] if persisted?
+    end
+
+    def platform= platform
+      @platform = platform
     end
 
     def crashes
@@ -76,16 +75,16 @@ module HockeyApp
     attr_reader :client
 
     def default_values!
-      @dsym=nil
-      @notes="New version"
-      @notes_type=Version::NOTES_TYPES_TO_SYM.invert[:textile]
-      @notify=Version::NOTIFY_TO_BOOL.invert[:none]
-      @status=Version::STATUS_TO_SYM.invert[:allow]
+      @first_name=''
+      @last_name=''
+      @message=''
+      @role=3
+      @status=Invite::STATUS_TO_SYM.invert[:allow]
     end
 
     def url_strategy
-      return HockeyApp::IOSVersionUrls.new(self) if app.platform == HockeyApp::App::IOS
-      return HockeyApp::AndroidVersionUrls.new(self) if app.platform == HockeyApp::App::ANDROID
+      return HockeyApp::IOSAppUrls.new(self) if platform == IOS
+      return HockeyApp::AndroidAppUrls.new(self) if platform == ANDROID
     end
 
   end

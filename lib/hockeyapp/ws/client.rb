@@ -48,6 +48,11 @@ module HockeyApp
       versions_hash["app_versions"].map{|version_hash|Version.from_hash(version_hash, app, self)}
     end
 
+    def get_invites app
+      invites_hash = ws.get_invites
+      invites_hash["apps"].map{|invite_hash|Invite.from_hash(invite_hash, app, self)}
+    end
+
     def post_new_version version
       app_id = version.app.public_identifier
       ipa = version.ipa
@@ -55,6 +60,15 @@ module HockeyApp
       version_hash = ws.post_new_version(app_id, ipa, version.dsym, version.notes, version.notes_type, version.notify, version.status, version.tags)
       raise version_hash['errors'].map{|e|e.to_s}.join("\n") unless version_hash['errors'].nil?
       Version.from_hash(version_hash, version.app, self)
+    end
+
+    def post_invite invite
+      app_id = invite.app.public_identifier
+      email = invite.email
+      raise "There must be an email" if email.nil?
+      invite_hash = ws.post_invite(app_id, email, invite.first_name, invite.last_name, invite.message, invite.role, invite.tags)
+      Invite.from_hash(invite_hash, invite.app,self)
+      invite_hash
     end
 
     def remove_app app
